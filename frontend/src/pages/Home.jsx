@@ -63,7 +63,7 @@ const HomePage = () => {
           <img 
             src="/image/herosection.jpeg" 
             alt="Fresh groceries" 
-            className="w-full h-full object-cover object-center opacity-80 "
+            className="w-full h-full object-cover object-center opacity-40 "
           />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
