@@ -36,7 +36,7 @@ const Contact = () => {
   return (
     <div className="bg-green-50 min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-600 to-green-400 text-white py-16">
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-center mb-4">Contact Us</h1>
           <p className="text-center text-lg max-w-2xl mx-auto">
