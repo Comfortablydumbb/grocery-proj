@@ -7,7 +7,7 @@ import FeaturedCategories from "../sections/FeaturedCategories";
 
 const HomePage = () => {
   return (
-    <div className="pt-16 bg-gray-50">
+    <div className="py-20 bg-gray-50">
       {/* Hero section */}
       <Hero />
       {/* Featured Products */}

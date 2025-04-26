@@ -1,212 +1,225 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
+    setError("");
+
     const { firstName, lastName, email, password, confirmPassword } = formData;
-    
-    // Basic validation
+
     if (!firstName || !lastName || !email || !password) {
-      setError('Please fill in all required fields');
+      setError("Please fill in all required fields");
       return;
     }
-    
+
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
-    
+
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError("Password must be at least 6 characters");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      // This is where you would connect to your backend for registration
-      // For demo purposes, we'll simulate a successful registration after a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Store user info in localStorage (in a real app, this would be handled differently)
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('user', JSON.stringify({
-        email,
-        name: `${firstName} ${lastName}`
-      }));
-      
-      // Redirect to homepage after successful registration
-      navigate('/');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          email,
+          name: `${firstName} ${lastName}`,
+        })
+      );
+      navigate("/");
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <div className="sm:mx-auto sm:w-full sm:max-w-md mb-6">
-            <h2 className="text-center text-3xl font-extrabold text-gray-900">
-              Create a new account
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Or{' '}
-              <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
-                sign in to your existing account
-              </Link>
-            </p>
-          </div>
-          
-          {error && (
-            <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 text-red-700">
-              <p>{error}</p>
-            </div>
-          )}
-          
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                  First name
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    autoComplete="given-name"
-                    required
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  />
-                </div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-100 via-white to-green-100 flex items-center justify-center py-12 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl"
+      >
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            Create a new account
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Or{" "}
+            <Link
+              to="/login"
+              className="text-green-600 hover:underline font-medium"
+            >
+              sign in to your existing account
+            </Link>
+          </p>
+        </div>
 
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                  Last name
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    autoComplete="family-name"
-                    required
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-            </div>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-6 bg-red-100 text-red-700 px-4 py-3 rounded-md text-sm"
+          >
+            {error}
+          </motion.div>
+        )}
 
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  autoComplete="email"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={handleChange}
-                  autoComplete="new-password"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  autoComplete="new-password"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {isLoading ? 'Creating account...' : 'Create account'}
+                First name
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                autoComplete="given-name"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
+                placeholder="First name"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Last name
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                autoComplete="family-name"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
+                placeholder="Last name"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              autoComplete="email"
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-400"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-          </form>
-        </div>
-      </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Confirm password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showPassword ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              autoComplete="new-password"
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition disabled:opacity-50"
+          >
+            {isLoading ? "Creating account..." : "Create account"}
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 };

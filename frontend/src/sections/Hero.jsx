@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-green-100 via-green-200 to-green-100 py-12 overflow-hidden">
+    <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-green-100 via-green-200 to-green-100 py-20 lg:py-40 overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 md:px-12 bg-white rounded-3xl shadow-2xl overflow-hidden w-full">
         {/* Text Content */}
         <motion.div
