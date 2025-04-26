@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import bannerimage from "../assets/grocery.jpg";
 
 const categories = [
@@ -97,18 +100,35 @@ const banners = [
 
 export default function FeaturedCategories() {
   return (
-    <section className="py-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section className="py-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
       {/* Section Title */}
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
+      <motion.h2
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center md:text-left"
+      >
         Featured Categories
-      </h2>
+      </motion.h2>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
+      <motion.div
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
         {categories.map((cat) => (
-          <div
+          <motion.div
             key={cat.id}
-            className={`rounded-xl hover:shadow-lg transition text-center p-4 border ${cat.bg}`}
+            variants={{
+              hidden: { opacity: 0, scale: 0.9 },
+              visible: { opacity: 1, scale: 1 },
+            }}
+            whileHover={{ y: -5, scale: 1.03 }}
+            transition={{ duration: 0, ease: "easeOut" }}
+            className={`rounded-xl border ${cat.bg} p-4 text-center cursor-pointer hover:shadow-xl transition`}
           >
             <img
               src={cat.image}
@@ -117,35 +137,47 @@ export default function FeaturedCategories() {
             />
             <h4 className="font-semibold text-gray-800">{cat.title}</h4>
             <p className="text-gray-500 text-sm">{cat.items} items</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Promo Banners */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
         {banners.map((banner) => (
-          <div
+          <motion.div
             key={banner.id}
-            className={`rounded-xl p-6 flex flex-col md:flex-row items-center justify-between ${banner.bg}`}
+            variants={{
+              hidden: { opacity: 0.5, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            className={`rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between ${banner.bg} shadow-md hover:shadow-lg transition`}
           >
             {/* Text */}
             <div className="mb-4 md:mb-0 md:w-1/2">
               <h3 className="text-xl font-bold text-gray-800 mb-3">
                 {banner.title}
               </h3>
-              <button className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-full transition">
+              <button className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-full transition">
                 Shop Now →
               </button>
             </div>
+
             {/* Image */}
-            <img
+            <motion.img
               src={banner.image}
               alt={banner.title}
-              className="h-28 object-contain md:h-36 md:w-auto rounded-md"
+              className="h-28 md:h-36 object-contain md:w-auto rounded-md"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

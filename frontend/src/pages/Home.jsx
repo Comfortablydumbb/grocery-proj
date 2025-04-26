@@ -16,8 +16,6 @@ const HomePage = () => {
       <FeaturedCategories />
       {/* Features */}
       <Features />
-      {/* footer */}
-      <Footer />
     </div>
   );
 };

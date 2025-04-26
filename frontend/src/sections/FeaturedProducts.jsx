@@ -1,5 +1,8 @@
+"use client";
+
 import { Link } from "react-router-dom";
 import ProductCard from "../component/ProductCard";
+import { motion } from "framer-motion";
 
 const featuredProducts = [
   {
@@ -49,30 +52,68 @@ const featuredProducts = [
 
 export default function FeaturedProducts() {
   return (
-    <section className="py-16">
+    <section className="py-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        {/* Section Title */}
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-4xl font-bold text-gray-800 mb-4"
+        >
           This Week's Favorites
-        </h2>
-        <p className="text-gray-600 text-base md:text-lg mb-12">
-          Hand-picked products you’ll love
-        </p>
+        </motion.h2>
 
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="text-gray-600 text-base md:text-lg mb-12"
+        >
+          Hand-picked products you’ll love
+        </motion.p>
+
+        {/* Product Grid */}
+        <motion.div
+          className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          initial="hidden"
+          whileInView="visible"
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+          viewport={{ once: true }}
+        >
           {featuredProducts.map((product) => (
-            <ProductCard
+            <motion.div
               key={product.id}
-              image={product.image}
-              name={product.name}
-              category={product.category}
-              price={product.price}
-              oldPrice={product.oldPrice}
-              discount={product.discount}
-              rating={product.rating}
-              unit={product.unit}
-            />
+              variants={{
+                hidden: { opacity: 0, scale: 0.95 },
+                visible: { opacity: 1, scale: 1 },
+              }}
+              whileHover={{ y: -5, scale: 1.03 }}
+              transition={{ duration: 0, ease: "easeOut" }} // <-- Faster and smoother!
+              className="rounded-2xl p-4 transition"
+            >
+              <ProductCard
+                image={product.image}
+                name={product.name}
+                category={product.category}
+                price={product.price}
+                oldPrice={product.oldPrice}
+                discount={product.discount}
+                rating={product.rating}
+                unit={product.unit}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
