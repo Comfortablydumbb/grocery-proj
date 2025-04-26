@@ -70,18 +70,19 @@ const Navbar = () => {
           {/* Account & Cart */}
           <div className="flex items-center gap-4">
             <Link
-              to="/login"
-              className="text-gray-700 hover:text-green-600 transition"
+              to="/cart"
+              className="relative group flex justify-center items-center gap-2"
             >
-              <User className="h-6 w-6" />
-            </Link>
-            <Link to="/cart" className="relative group">
               <ShoppingCart className="h-6 w-6 text-gray-700 group-hover:text-green-600 transition" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
+              <span className="absolute -top-2 left-3 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount}
+              </span>
+            </Link>
+            <Link
+              to="/login"
+              className="text-gray-700 hover:text-green-600 transition flex justify-center items-center gap-1"
+            >
+              <User className="h-6 w-6" /> Account
             </Link>
 
             {/* Mobile Menu Button */}
