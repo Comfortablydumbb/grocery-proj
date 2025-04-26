@@ -1,205 +1,194 @@
-import React, { useState } from 'react';
-import { Filter, ShoppingCart, Search } from 'lucide-react';
+import { motion } from "framer-motion";
+import ProductCard from "../component/ProductCard";
 
-const Shop = () => {
-  // Sample product data (in a real app, this would come from backend)
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: 'Organic Apples',
-      category: 'Fruits',
-      price: 3.99,
-      image: '/api/placeholder/300/300',
-      description: 'Fresh, locally sourced organic apples',
-      unit: 'lb'
-    },
-    {
-      id: 2,
-      name: 'Whole Milk',
-      category: 'Dairy',
-      price: 4.49,
-      image: '/api/placeholder/300/300',
-      description: 'Organic whole milk from local dairy farms',
-      unit: 'gallon'
-    },
-    // Add more products...
-  ]);
+const products = [
+  {
+    id: 1,
+    name: "Fresh Organic Apples",
+    image: "/api/placeholder/300/300",
+    price: 3.99,
+    category: "Fruits",
+    unit: "lb",
+    discount: "10%",
+    rating: 5,
+  },
+  {
+    id: 2,
+    name: "Organic Whole Milk",
+    image: "/api/placeholder/300/300",
+    price: 4.49,
+    oldPrice: 6.7,
+    category: "Dairy",
+    unit: "gallon",
+    discount: "10%",
+    rating: 4,
+  },
+  {
+    id: 3,
+    name: "Whole Grain Bread",
+    image: "/api/placeholder/300/300",
+    price: 3.29,
+    oldPrice: 6.7,
+    category: "Bakery",
+    unit: "loaf",
+    rating: 4,
+    discount: "10%",
+  },
+  {
+    id: 4,
+    name: "Fresh Salmon Fillet",
+    image: "/api/placeholder/300/300",
+    price: 12.99,
+    oldPrice: 6.7,
+    category: "Seafood",
+    unit: "lb",
+    discount: "10%",
+    rating: 5,
+  },
+];
 
-  const [filters, setFilters] = useState({
-    category: '',
-    priceRange: [0, 50],
-    search: ''
-  });
-
-  const [showFilters, setShowFilters] = useState(false);
-
-  const handleAddToCart = (product) => {
-    // In a real app, this would interact with cart context
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingProduct = cart.find(item => item.id === product.id);
-    
-    if (existingProduct) {
-      existingProduct.quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    // Dispatch storage event to update cart count in navbar
-    window.dispatchEvent(new Event('storage'));
-  };
-
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = !filters.category || product.category === filters.category;
-    const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
-    const matchesSearch = product.name.toLowerCase().includes(filters.search.toLowerCase());
-    
-    return matchesCategory && matchesPrice && matchesSearch;
-  });
-
-  const categories = ['Fruits', 'Vegetables', 'Dairy', 'Meat', 'Bakery', 'Pantry'];
-
+export default function Shop() {
   return (
-    <div className="pt-16 min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Our Products</h1>
-          
-          {/* Search and Filter */}
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search products..." 
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({...prev, search: e.target.value}))}
-                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            </div>
-            <button 
-              onClick={() => setShowFilters(!showFilters)}
-              className="bg-green-100 text-green-800 p-2 rounded-lg hover:bg-green-200"
-            >
-              <Filter size={24} />
-            </button>
-          </div>
-        </div>
+    <section className="bg-gray-50 py-20 lg:pt-40">
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-12"
+      >
+        <h1 className="text-4xl font-bold text-green-700">
+          Shop Fresh With Us!
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Explore our best selections curated just for you.
+        </p>
+      </motion.div>
 
-        {/* Filters Dropdown */}
-        {showFilters && (
-          <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Category Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
-                </label>
-                <select 
-                  value={filters.category}
-                  onChange={(e) => setFilters(prev => ({...prev, category: e.target.value}))}
-                  className="w-full border rounded-lg px-3 py-2"
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
+        {/* Sidebar */}
+        <motion.aside
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full lg:w-1/4"
+        >
+          <div className="bg-white rounded-xl shadow p-6 sticky top-36">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">
+              Product Categories
+            </h2>
+            <ul className="space-y-4">
+              {[
+                "Baking material",
+                "Bread and Juice",
+                "Clothing & beauty",
+                "Fresh Fruit",
+                "Fresh Seafood",
+                "Milks and Dairies",
+                "Vegetables",
+              ].map((category, index) => (
+                <li
+                  key={index}
+                  className="flex items-center gap-2 cursor-pointer group"
                 >
-                  <option value="">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price Range Filter */}
-             {/*} <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price Range
-                </label>
-                <div className="flex items-center space-x-4">
-                  <input 
-                    type="number" 
-                    value={filters.priceRange[0]}
-                    onChange={(e) => setFilters(prev => ({
-                      ...prev, 
-                      priceRange: [Number(e.target.value), prev.priceRange[1]]
-                    }))}
-                    className="w-full border rounded-lg px-3 py-2"
-                    placeholder="Min"
-                  />
-                  <span>-</span>
-                  <input 
-                    type="number" 
-                    value={filters.priceRange[1]}
-                    onChange={(e) => setFilters(prev => ({
-                      ...prev, 
-                      priceRange: [prev.priceRange[0], Number(e.target.value)]
-                    }))}
-                    className="w-full border rounded-lg px-3 py-2"
-                    placeholder="Max"
-                  />
-                </div>
-              </div>/*}
-
-              {/* Reset Filters */}
-              <div className="flex items-end">
-                <button 
-                  onClick={() => setFilters({
-                    category: '',
-                    priceRange: [0, 50],
-                    search: ''
-                  })}
-                  className="bg-red-100 text-red-800 px-4 py-2 rounded-lg hover:bg-red-200"
-                >
-                  Reset Filters
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {filteredProducts.map(product => (
-            <div 
-              key={product.id} 
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
-            >
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {product.name}
-                </h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  {product.description}
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-green-600 font-bold">
-                    ${product.price.toFixed(2)} / {product.unit}
+                  <input type="checkbox" className="accent-green-600" />
+                  <span className="text-gray-700 group-hover:text-green-600 transition">
+                    {category}
                   </span>
-                  <button 
-                    onClick={() => handleAddToCart(product)}
-                    className="bg-green-100 text-green-800 p-2 rounded-full hover:bg-green-200"
-                  >
-                    <ShoppingCart size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* No Products Found */}
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-xl text-gray-600">
-              No products found matching your filters.
-            </p>
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
-      </div>
-    </div>
-  );
-};
+        </motion.aside>
 
-export default Shop;
+        {/* Main Products Section */}
+        <div className="w-full lg:w-3/4">
+          {/* Top bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+            <p className="text-gray-700 text-sm">Showing 1–12 of 16 results</p>
+            <div className="flex items-center gap-2">
+              <label htmlFor="show" className="text-gray-700 text-sm">
+                Show:
+              </label>
+              <select
+                id="show"
+                className="border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              >
+                <option value="12">12</option>
+                <option value="24">24</option>
+                <option value="36">36</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {products.map((product, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.03 }}
+                className="relative"
+              >
+                {/* Discount badge */}
+                {product.discount && (
+                  <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                    {product.discount} OFF
+                  </span>
+                )}
+                <ProductCard
+                  image={product.image}
+                  name={product.name}
+                  category={product.category}
+                  price={product.price}
+                  oldPrice={product.oldPrice}
+                  discount={product.discount}
+                  rating={product.rating}
+                  unit={product.unit}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Pagination */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-12 flex justify-center"
+          >
+            <nav className="flex items-center gap-2 p-3 bg-white shadow-md rounded-lg">
+              <button className="px-4 py-2 rounded-md bg-gray-100 hover:bg-green-500 hover:text-white text-sm text-gray-700 transition">
+                Previous
+              </button>
+
+              {[1, 2, 3, 4].map((page) => (
+                <button
+                  key={page}
+                  className="px-4 py-2 rounded-md bg-gray-100 hover:bg-green-500 hover:text-white text-sm text-gray-700 transition"
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button className="px-4 py-2 rounded-md bg-gray-100 hover:bg-green-500 hover:text-white text-sm text-gray-700 transition">
+                Next
+              </button>
+            </nav>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}

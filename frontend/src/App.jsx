@@ -10,14 +10,14 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Navbar from "./sections/Navbar";
 import Footer from "./sections/Footer";
-import Shop from "./sections/Shop";
+import Shop from "./pages/Shop";
 
 const App = () => {
   return (
     <div>
       {/* <Navbar /> */}
       <Navbar />
-
+      {/* other pages */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
@@ -27,8 +27,9 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orders" element={<Orders />} />
-        <Route path="/footer" element={<Footer />} />
       </Routes>
+      {/* footer */}
+      <Footer />
     </div>
   );
 };

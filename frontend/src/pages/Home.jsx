@@ -1,7 +1,6 @@
 import React from "react";
 import Footer from "../sections/Footer";
 import Hero from "../sections/Hero";
-import ShopByCategory from "../sections/ShopByCategory";
 import Features from "../sections/Features";
 import FeaturedProducts from "../sections/FeaturedProducts";
 import FeaturedCategories from "../sections/FeaturedCategories";
