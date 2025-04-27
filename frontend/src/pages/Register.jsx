@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import axios from "../api/axios";
+
+const REGISTER_URL = "http://localhost:3001/v1/auth/signup";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -26,40 +30,61 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     const { name, email, password, confirmPassword } = formData;
 
-    if (!name || !email || !password) {
-      setError("Please fill in all required fields");
+    // Simple frontend validations
+    if (!name || !email || !password || !confirmPassword) {
+      toast.error("All fields are required.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match.");
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
+
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(password)) {
+      toast.error(
+        "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character."
+      );
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email,
-          name: `${firstName} ${lastName}`,
-        })
+      const response = await axios.post(
+        REGISTER_URL,
+        JSON.stringify({ name, email, password }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
       );
-      navigate("/");
+
+      console.log(response?.data);
+
+      // Assuming backend returns token or user data on success
+      toast("An OTP has been sent to your email. Please confirm your OTP.");
+      navigate(`/verify/${email}`, { replace: true });
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      if (!err?.response) {
+        toast.error("No server response.");
+      } else if (err.response?.status === 400) {
+        toast.error("Missing or invalid data.");
+      } else if (err.response?.status === 409) {
+        toast.error("User already exists.");
+      } else {
+        toast.error("Registration failed. Try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -101,21 +126,21 @@ const Register = () => {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
-              htmlFor="firstName"
+              htmlFor="name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Full name
             </label>
             <input
               type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
+              id="name"
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               autoComplete="given-name"
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
-              placeholder="First name"
+              placeholder="Full name"
             />
           </div>
           <div>

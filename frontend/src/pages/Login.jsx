@@ -2,8 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import axios from "../api/axios";
+import useAtuh from "../hooks/useAuth";
+
+const LOGIN_URL = "http://localhost:3001/v1/auth/login";
 
 const Login = () => {
+  const { setAuth } = useAtuh();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -14,30 +21,60 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
+    // Frontend validation
     if (!email || !password) {
-      setError("Please fill in all fields");
+      toast.error("Email and Password are required");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email,
-          name: email.split("@")[0],
-        })
+      const response = await axios.post(
+        LOGIN_URL,
+        JSON.stringify({ email, password }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true, // Include this if you're using cookies/session
+        }
       );
 
-      navigate("/");
+      console.log(response?.data); // Log the response to check what the backend returns
+      console.log(response?.data.token); // Log the response to check what the backend returns
+      console.log(response?.data.user); // Log the response to check what the backend returns
+      console.log(response?.data.user.name); // Log the response to check what the backend returns
+      console.log(response?.data.user.email); // Log the response to check what the backend returns
+
+      setAuth({
+        user: response.data.user.name,
+        email: response.data.user.email,
+        jwtToken: response.data.token,
+        roles: response.data.user.role,
+      });
+
+      // if (response?.status === 200) {
+      //   // Assuming backend sends a token or user data on success
+      //   localStorage.setItem("isAuthenticated", "true");
+      //   localStorage.setItem(
+      //     "user",
+      //     JSON.stringify({
+      //       email,
+      //       name: response?.data?.name || email.split("@")[0], // Assuming name is returned
+      //     })
+      //   );
+
+      // }
+      toast.success("Login Successfull");
+      navigate("/"); // Redirect to homepage or dashboard after successful login
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      if (!err?.response) {
+        toast.error("No server response.");
+      } else if (err.response?.status === 401) {
+        toast.error("Invalid credentials. Please try again.");
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
