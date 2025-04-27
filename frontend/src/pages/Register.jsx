@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -29,9 +28,9 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    const { firstName, lastName, email, password, confirmPassword } = formData;
+    const { name, email, password, confirmPassword } = formData;
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!name || !email || !password) {
       setError("Please fill in all required fields");
       return;
     }
@@ -100,48 +99,25 @@ const Register = () => {
         )}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="firstName"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                First name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                autoComplete="given-name"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
-                placeholder="First name"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="lastName"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Last name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                autoComplete="family-name"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
-                placeholder="Last name"
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Full name
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              autoComplete="given-name"
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
+              placeholder="First name"
+            />
           </div>
-
           <div>
             <label
               htmlFor="email"
