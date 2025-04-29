@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ShoppingCart, Menu, X, User } from "lucide-react";
+import useAuth from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
+
+  const { auth } = useAuth();
+  const name = auth.name;
 
   useEffect(() => {
     const getCartCount = () => {
@@ -82,7 +86,7 @@ const Navbar = () => {
               to="/login"
               className="text-gray-700 hover:text-green-600 transition flex justify-center items-center gap-1"
             >
-              <User className="h-6 w-6" /> Account
+              <User className="h-6 w-6" /> {name ? name : "Account"}
             </Link>
 
             {/* Mobile Menu Button */}

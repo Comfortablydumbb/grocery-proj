@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import axios from "../api/axios";
 
-const REGISTER_URL = "http://localhost:3001/v1/auth/signup";
+const REGISTER_URL = "/v1/auth/signup";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -66,7 +66,6 @@ const Register = () => {
         JSON.stringify({ name, email, password }),
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
         }
       );
 

@@ -4,12 +4,12 @@ import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import axios from "../api/axios";
-import useAtuh from "../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
-const LOGIN_URL = "http://localhost:3001/v1/auth/login";
+const LOGIN_URL = "/v1/auth/login";
 
 const Login = () => {
-  const { setAuth } = useAtuh();
+  const { setAuth } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,37 +36,30 @@ const Login = () => {
         JSON.stringify({ email, password }),
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true, // Include this if you're using cookies/session
         }
       );
 
-      console.log(response?.data); // Log the response to check what the backend returns
-      console.log(response?.data.token); // Log the response to check what the backend returns
-      console.log(response?.data.user); // Log the response to check what the backend returns
-      console.log(response?.data.user.name); // Log the response to check what the backend returns
-      console.log(response?.data.user.email); // Log the response to check what the backend returns
+      console.log(response.data);
 
-      setAuth({
-        user: response.data.user.name,
-        email: response.data.user.email,
-        jwtToken: response.data.token,
-        roles: response.data.user.role,
-      });
+      const name = response.data.user.name;
+      const role = response.data.user.role;
+      const accessToken = response.data.token;
 
-      // if (response?.status === 200) {
-      //   // Assuming backend sends a token or user data on success
-      //   localStorage.setItem("isAuthenticated", "true");
-      //   localStorage.setItem(
-      //     "user",
-      //     JSON.stringify({
-      //       email,
-      //       name: response?.data?.name || email.split("@")[0], // Assuming name is returned
-      //     })
-      //   );
+      const userData = { name, email, role, accessToken };
+      console.log(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
 
-      // }
+      setAuth(userData);
+
       toast.success("Login Successfull");
-      navigate("/"); // Redirect to homepage or dashboard after successful login
+
+      if (role.includes("customer")) {
+        navigate("/"); // Redirect to homepage or dashboard after successful login
+      } else if (role.includes("admin")) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       if (!err?.response) {
         toast.error("No server response.");
@@ -164,14 +157,6 @@ const Login = () => {
           </div>
 
           <div className="flex items-center justify-between">
-            <label className="flex items-center text-sm text-gray-600">
-              <input
-                type="checkbox"
-                className="h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-400"
-              />
-              <span className="ml-2">Remember me</span>
-            </label>
-
             <Link
               to="#"
               className="text-sm text-green-600 hover:underline font-medium"

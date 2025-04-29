@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React from "react";
 import { AuthProvider } from "./context/AuthProvider.jsx";
 import { Toaster } from "react-hot-toast";
+import PersistLogin from "./hooks/presistLogin.jsx";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
