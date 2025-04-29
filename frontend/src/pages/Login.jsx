@@ -56,7 +56,7 @@ const Login = () => {
       if (role.includes("customer")) {
         navigate("/"); // Redirect to homepage or dashboard after successful login
       } else if (role.includes("admin")) {
-        navigate("/admin/dashboard");
+        navigate("/admin/home");
       } else {
         navigate("/");
       }

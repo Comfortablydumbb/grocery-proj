@@ -15,6 +15,8 @@ import UserLayout from "./layouts/UserLayout";
 import { Toaster } from "react-hot-toast";
 import VerifyOTP from "./pages/VerifyOtp";
 import PersistLogin from "./hooks/presistLogin";
+import AdminDashboard from "./layouts/AdminLayout";
+import DashboardHome from "./pages/admin/DashboardHome";
 
 const App = () => {
   return (
@@ -48,6 +50,9 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+        </Route>
+        <Route path="/admin" element={<AdminDashboard />}>
+          <Route path="dashboard" element={<DashboardHome />} />
         </Route>
       </Route>
     </Routes>
