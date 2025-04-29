@@ -17,6 +17,8 @@ import VerifyOTP from "./pages/VerifyOtp";
 import PersistLogin from "./hooks/presistLogin";
 import AdminDashboard from "./layouts/AdminLayout";
 import DashboardHome from "./pages/admin/DashboardHome";
+import CategoriesPage from "./pages/admin/CategoriesPage.jsx";
+import CreateCategory from "./pages/admin/CreateCategory.jsx";
 
 const App = () => {
   return (
@@ -53,6 +55,8 @@ const App = () => {
         </Route>
         <Route path="/admin" element={<AdminDashboard />}>
           <Route path="dashboard" element={<DashboardHome />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="categories/create" element={<CreateCategory />} />
         </Route>
       </Route>
     </Routes>
