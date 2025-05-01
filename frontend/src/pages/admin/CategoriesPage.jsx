@@ -28,6 +28,7 @@ const CategoriesPage = () => {
 
   const handleEdit = (id) => {
     console.log("Edit category", id);
+    navigate(`/admin/categories/update/${id}`);
     // Implement navigation or modal here
   };
 

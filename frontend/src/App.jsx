@@ -19,6 +19,7 @@ import AdminDashboard from "./layouts/AdminLayout";
 import DashboardHome from "./pages/admin/DashboardHome";
 import CategoriesPage from "./pages/admin/CategoriesPage.jsx";
 import CreateCategory from "./pages/admin/CreateCategory.jsx";
+import UpdateCategory from "./pages/admin/UpdateCategory.jsx";
 
 const App = () => {
   return (
@@ -57,6 +58,7 @@ const App = () => {
           <Route path="dashboard" element={<DashboardHome />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="categories/create" element={<CreateCategory />} />
+          <Route path="categories/update/:id" element={<UpdateCategory />} />
         </Route>
       </Route>
     </Routes>

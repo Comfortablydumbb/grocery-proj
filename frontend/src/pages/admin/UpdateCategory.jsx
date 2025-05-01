@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
-const CREATE_CATEGORY_URL = "/v1/category";
-
-const CreateCategory = () => {
+const UpdateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { id } = useParams();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
@@ -19,22 +19,36 @@ const CreateCategory = () => {
     const files = Array.from(e.target.files);
     setImages(files);
 
+    // Generate preview URLs
     const previews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews(previews);
   };
 
+  const fetchCategory = async () => {
+    try {
+      const response = await axiosPrivate.get(`/v1/category/${id}`);
+      const { categoryName, images } = response.data;
+      setCategoryName(categoryName);
+      setExistingImages(images || []);
+    } catch (err) {
+      toast.error("Failed to fetch category");
+    }
+  };
+
   useEffect(() => {
-    // Clean up preview URLs on unmount
+    fetchCategory();
+
+    // Clean up previews on unmount
     return () => {
       imagePreviews.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [imagePreviews]);
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!categoryName || images.length === 0) {
-      toast.error("All fields are required");
+    if (!categoryName) {
+      toast.error("Category name is required");
       return;
     }
 
@@ -44,15 +58,12 @@ const CreateCategory = () => {
 
     try {
       setIsLoading(true);
-      await axiosPrivate.post(CREATE_CATEGORY_URL, formData);
+      await axiosPrivate.put(`/v1/category/${id}`, formData);
 
-      toast.success("Category created successfully!");
-      setImages([]);
-      setImagePreviews([]);
-      setCategoryName("");
+      toast.success("Category updated successfully!");
       navigate("/admin/categories");
     } catch (err) {
-      toast.error("Failed to create category");
+      toast.error("Failed to update category");
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +78,7 @@ const CreateCategory = () => {
         className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-2xl"
       >
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Create New Category
+          Update Category
         </h2>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -79,7 +90,6 @@ const CreateCategory = () => {
               type="text"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="e.g. Vegetables"
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-400 text-sm"
             />
@@ -87,18 +97,32 @@ const CreateCategory = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload Images
+              Existing Images
+            </label>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {existingImages.map((img, i) => (
+                <img
+                  key={i}
+                  src={`http://localhost:3001/public/${img}`}
+                  alt={`existing-${i}`}
+                  className="w-16 h-16 object-cover rounded border"
+                />
+              ))}
+            </div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Upload New Images (optional)
             </label>
             <input
               type="file"
               accept="image/*"
               multiple
               onChange={handleImageChange}
-              required
               className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm mb-2"
             />
+
             {imagePreviews.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2">
                 {imagePreviews.map((url, i) => (
                   <img
                     key={i}
@@ -116,7 +140,7 @@ const CreateCategory = () => {
             disabled={isLoading}
             className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition disabled:opacity-50"
           >
-            {isLoading ? "Creating..." : "Create Category"}
+            {isLoading ? "Updating..." : "Update Category"}
           </button>
         </form>
       </motion.div>
@@ -124,4 +148,4 @@ const CreateCategory = () => {
   );
 };
 
-export default CreateCategory;
+export default UpdateCategory;
