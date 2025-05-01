@@ -2,7 +2,7 @@ import { ShoppingCart } from "lucide-react";
 import groceryImage from "../assets/grocery.jpg";
 
 export default function ProductCard({
-  // image,
+  image,
   name,
   category,
   unit,
@@ -15,14 +15,14 @@ export default function ProductCard({
     <div className="relative bg-white rounded-2xl shadow-md p-4 w-full max-w-xs flex flex-col">
       {/* Discount Badge */}
       <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
-        {discount}
+        {discount}%
       </div>
 
       {/* Product Image */}
       <img
-        src={groceryImage} // replace with your image
+        src={image} // replace with your image
         alt="Product"
-        className="w-full h-48 object-contain mb-4"
+        className="w-full h-48 object-cover mb-4"
       />
 
       {/* Category */}
