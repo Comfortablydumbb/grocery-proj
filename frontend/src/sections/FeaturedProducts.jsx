@@ -1,56 +1,31 @@
 "use client";
 
-import { Link } from "react-router-dom";
-import ProductCard from "../component/ProductCard";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Fresh Organic Apples",
-    image: "/api/placeholder/300/300",
-    price: 3.99,
-    category: "Fruits",
-    unit: "lb",
-    discount: "10%",
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: "Organic Whole Milk",
-    image: "/api/placeholder/300/300",
-    price: 4.49,
-    oldPrice: 6.7,
-    category: "Dairy",
-    unit: "gallon",
-    discount: "10%",
-    rating: 4,
-  },
-  {
-    id: 3,
-    name: "Whole Grain Bread",
-    image: "/api/placeholder/300/300",
-    price: 3.29,
-    oldPrice: 6.7,
-    category: "Bakery",
-    unit: "loaf",
-    rating: 4,
-    discount: "10%",
-  },
-  {
-    id: 4,
-    name: "Fresh Salmon Fillet",
-    image: "/api/placeholder/300/300",
-    price: 12.99,
-    oldPrice: 6.7,
-    category: "Seafood",
-    unit: "lb",
-    discount: "10%",
-    rating: 5,
-  },
-];
+import ProductCard from "../component/ProductCard";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 export default function FeaturedProducts() {
+  const axiosPrivate = useAxiosPrivate();
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await axiosPrivate.get("/v1/products");
+      const allProducts = res.data.products || [];
+      setFeaturedProducts(allProducts.slice(0, 4)); // Show only first 4
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   return (
     <section className="py-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 text-center">
@@ -90,29 +65,37 @@ export default function FeaturedProducts() {
           }}
           viewport={{ once: true }}
         >
-          {featuredProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              variants={{
-                hidden: { opacity: 0, scale: 0.95 },
-                visible: { opacity: 1, scale: 1 },
-              }}
-              whileHover={{ y: -5, scale: 1.03 }}
-              transition={{ duration: 0, ease: "easeOut" }} // <-- Faster and smoother!
-              className="rounded-2xl p-4 transition"
-            >
-              <ProductCard
-                image={product.image}
-                name={product.name}
-                category={product.category}
-                price={product.price}
-                oldPrice={product.oldPrice}
-                discount={product.discount}
-                rating={product.rating}
-                unit={product.unit}
-              />
-            </motion.div>
-          ))}
+          {loading ? (
+            <p className="col-span-full text-gray-600">Loading...</p>
+          ) : featuredProducts.length === 0 ? (
+            <p className="col-span-full text-gray-600">
+              No featured products found.
+            </p>
+          ) : (
+            featuredProducts.map((product) => (
+              <motion.div
+                key={product._id}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.95 },
+                  visible: { opacity: 1, scale: 1 },
+                }}
+                whileHover={{ y: -5, scale: 1.03 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="rounded-2xl p-4 transition"
+              >
+                <ProductCard
+                  image={`http://localhost:3001/public/${product.images?.[0]}`}
+                  name={product.productName}
+                  category={product.category?.categoryName}
+                  price={product.price}
+                  oldPrice={product.oldPrice}
+                  discount={product.discount}
+                  rating={product.rating || 4}
+                  unit={product.unit || "kg"}
+                />
+              </motion.div>
+            ))
+          )}
         </motion.div>
       </div>
     </section>

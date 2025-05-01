@@ -1,81 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import bannerimage from "../assets/grocery.jpg";
-
-const categories = [
-  {
-    id: 1,
-    title: "Cake & Milk",
-    items: 11,
-    image: "/images/categories/cake.png",
-    bg: "bg-green-50",
-  },
-  {
-    id: 2,
-    title: "Organic Kiwi",
-    items: 6,
-    image: "/images/categories/kiwi.png",
-    bg: "bg-yellow-50",
-  },
-  {
-    id: 3,
-    title: "Peach",
-    items: 6,
-    image: "/images/categories/peach.png",
-    bg: "bg-orange-50",
-  },
-  {
-    id: 4,
-    title: "Red Apple",
-    items: 10,
-    image: "/images/categories/apple.png",
-    bg: "bg-pink-50",
-  },
-  {
-    id: 5,
-    title: "Snacks",
-    items: 11,
-    image: "/images/categories/snacks.png",
-    bg: "bg-rose-50",
-  },
-  {
-    id: 6,
-    title: "Vegetables",
-    items: 6,
-    image: "/images/categories/lettuce.png",
-    bg: "bg-purple-50",
-  },
-  {
-    id: 7,
-    title: "Strawberry",
-    items: 10,
-    image: "/images/categories/strawberry.png",
-    bg: "bg-red-50",
-  },
-  {
-    id: 8,
-    title: "Black Plum",
-    items: 10,
-    image: "/images/categories/plum.png",
-    bg: "bg-indigo-50",
-  },
-  {
-    id: 9,
-    title: "Custard Apple",
-    items: 10,
-    image: "/images/categories/custard.png",
-    bg: "bg-lime-50",
-  },
-  {
-    id: 10,
-    title: "Coffee & Tea",
-    items: 11,
-    image: "/images/categories/coffee.png",
-    bg: "bg-amber-50",
-  },
-];
 
 const banners = [
   {
@@ -99,6 +27,27 @@ const banners = [
 ];
 
 export default function FeaturedCategories() {
+  const axiosPrivate = useAxiosPrivate();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axiosPrivate.get("/v1/categories");
+      console.log(res.data);
+      const data = res.data || [];
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   return (
     <section className="py-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
       {/* Section Title */}
@@ -119,26 +68,38 @@ export default function FeaturedCategories() {
         whileInView="visible"
         viewport={{ once: true }}
       >
-        {categories.map((cat) => (
-          <motion.div
-            key={cat.id}
-            variants={{
-              hidden: { opacity: 0, scale: 0.9 },
-              visible: { opacity: 1, scale: 1 },
-            }}
-            whileHover={{ y: -5, scale: 1.03 }}
-            transition={{ duration: 0, ease: "easeOut" }}
-            className={`rounded-xl border ${cat.bg} p-4 text-center cursor-pointer hover:shadow-xl transition`}
-          >
-            <img
-              src={cat.image}
-              alt={cat.title}
-              className="h-16 w-16 mx-auto object-contain mb-3"
-            />
-            <h4 className="font-semibold text-gray-800">{cat.title}</h4>
-            <p className="text-gray-500 text-sm">{cat.items} items</p>
-          </motion.div>
-        ))}
+        {loading ? (
+          <p className="col-span-full text-gray-600 text-center">Loading...</p>
+        ) : categories.length === 0 ? (
+          <p className="col-span-full text-gray-600 text-center">
+            No categories available.
+          </p>
+        ) : (
+          categories.map((cat) => (
+            <motion.div
+              key={cat._id}
+              variants={{
+                hidden: { opacity: 0, scale: 0.9 },
+                visible: { opacity: 1, scale: 1 },
+              }}
+              whileHover={{ y: -5, scale: 1.03 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className={`rounded-xl border bg-green-50 p-4 text-center cursor-pointer hover:shadow-xl transition`}
+            >
+              <img
+                src={`http://localhost:3001/public/${cat.images[0]}`}
+                alt={cat.categoryName}
+                className="h-16 w-16 mx-auto object-contain mb-3"
+              />
+              <h4 className="font-semibold text-gray-800">
+                {cat.categoryName}
+              </h4>
+              <p className="text-gray-500 text-sm">
+                {cat.productCount || 0} items
+              </p>
+            </motion.div>
+          ))
+        )}
       </motion.div>
 
       {/* Promo Banners */}
