@@ -25,6 +25,8 @@ import CreateProduct from "./pages/admin/CreateProduct.jsx";
 import UpdateProduct from "./pages/admin/UpdateProduct.jsx";
 import UsersPage from "./pages/admin/UsersPage.jsx";
 import RequireAuth from "./hooks/requireAuth.jsx";
+import CustomerDashboard from "./layouts/CustomerLayout.jsx";
+import CustomerDashboardHome from "./pages/customer/Dashboard.jsx";
 
 const App = () => {
   return (
@@ -59,7 +61,7 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
         </Route>
-        <Route element={<RequireAuth />}>
+        <Route element={<RequireAuth allowedRoles={["Admin"]} />}>
           <Route path="/admin" element={<AdminDashboard />}>
             <Route path="dashboard" element={<DashboardHome />} />
             <Route path="categories" element={<CategoriesPage />} />
@@ -69,6 +71,11 @@ const App = () => {
             <Route path="products/create" element={<CreateProduct />} />
             <Route path="products/update/:id" element={<UpdateProduct />} />
             <Route path="users" element={<UsersPage />} />
+          </Route>
+        </Route>
+        <Route element={<RequireAuth allowedRoles={["Customer"]} />}>
+          <Route path="/customer" element={<CustomerDashboard />}>
+            <Route path="dashboard" element={<CustomerDashboardHome />} />
           </Route>
         </Route>
       </Route>

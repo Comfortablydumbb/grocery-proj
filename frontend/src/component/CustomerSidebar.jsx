@@ -6,10 +6,10 @@ import useLogout from "../hooks/useLogout";
 const navLinks = [
   { name: "Dashboard", to: "/customer/dashboard" },
   { name: "MyOrders", to: "/customer/orders" },
-  { name: "Products", to: "/customer/settings" },
+  { name: "Settings", to: "/customer/settings" },
 ];
 
-const CustomerSIdebar = ({ isOpen, toggleSidebar }) => {
+const CustomerSidebar = ({ isOpen, toggleSidebar }) => {
   const logout = useLogout();
   const navigate = useNavigate();
 
@@ -60,4 +60,4 @@ const CustomerSIdebar = ({ isOpen, toggleSidebar }) => {
   );
 };
 
-export default CustomerSIdebar;
+export default CustomerSidebar;

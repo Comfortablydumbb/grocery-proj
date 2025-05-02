@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "../component/AdminSidebar";
 import { Menu } from "lucide-react";
+import CustomerSidebar from "../component/CustomerSidebar";
 
-const AdminDashboard = () => {
+const CustomerDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen((prev) => !prev);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <AdminSidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
+      <CustomerSidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
@@ -31,4 +32,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default CustomerDashboard;

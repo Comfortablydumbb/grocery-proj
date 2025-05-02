@@ -1,25 +1,19 @@
 import { useEffect } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
-const RequireAuth = () => {
+const RequireAuth = ({ allowedRoles }) => {
   const { auth } = useAuth();
   const navigate = useNavigate();
-
-  console.log(auth);
+  const location = useLocation();
 
   useEffect(() => {
-    const isAdmin = auth?.role?.includes("Admin"); // Adjust if roles are numeric
-    console.log(auth);
-
-    if (!auth?.name || !isAdmin) {
-      navigate("/login", { replace: true });
+    if (!auth?.name || !allowedRoles?.includes(auth?.role)) {
+      navigate("/login", { replace: true, state: { from: location } });
     }
-  }, [auth, navigate]);
+  }, [auth, allowedRoles, navigate, location]);
 
-  const isAdmin = auth?.role?.includes("Admin");
-
-  if (!auth?.name || !isAdmin) {
+  if (!auth?.name || !allowedRoles?.includes(auth?.role)) {
     return null;
   }
 
