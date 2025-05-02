@@ -53,10 +53,10 @@ const Login = () => {
 
       toast.success("Login Successfull");
 
-      if (role.includes("customer")) {
+      if (role.includes("Customer")) {
         navigate("/"); // Redirect to homepage or dashboard after successful login
-      } else if (role.includes("admin")) {
-        navigate("/admin/home");
+      } else if (role.includes("Admin")) {
+        navigate("/admin/dashboard");
       } else {
         navigate("/");
       }

@@ -24,6 +24,7 @@ import ProductsPage from "./pages/admin/ProductsPage.jsx";
 import CreateProduct from "./pages/admin/CreateProduct.jsx";
 import UpdateProduct from "./pages/admin/UpdateProduct.jsx";
 import UsersPage from "./pages/admin/UsersPage.jsx";
+import RequireAuth from "./hooks/requireAuth.jsx";
 
 const App = () => {
   return (
@@ -58,15 +59,17 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
         </Route>
-        <Route path="/admin" element={<AdminDashboard />}>
-          <Route path="dashboard" element={<DashboardHome />} />
-          <Route path="categories" element={<CategoriesPage />} />
-          <Route path="categories/create" element={<CreateCategory />} />
-          <Route path="categories/update/:id" element={<UpdateCategory />} />
-          <Route path="products" element={<ProductsPage />} />
-          <Route path="products/create" element={<CreateProduct />} />
-          <Route path="products/update/:id" element={<UpdateProduct />} />
-          <Route path="users" element={<UsersPage />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/admin" element={<AdminDashboard />}>
+            <Route path="dashboard" element={<DashboardHome />} />
+            <Route path="categories" element={<CategoriesPage />} />
+            <Route path="categories/create" element={<CreateCategory />} />
+            <Route path="categories/update/:id" element={<UpdateCategory />} />
+            <Route path="products" element={<ProductsPage />} />
+            <Route path="products/create" element={<CreateProduct />} />
+            <Route path="products/update/:id" element={<UpdateProduct />} />
+            <Route path="users" element={<UsersPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

@@ -1,19 +1,29 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import useLogout from "../hooks/useLogout";
 
 const navLinks = [
   { name: "Dashboard", to: "/admin/dashboard" },
   { name: "Categories", to: "/admin/categories" },
   { name: "Products", to: "/admin/products" },
   { name: "Users", to: "/admin/users" },
-  { name: "Logout", to: "/logout" },
+  // { name: "Logout", to: "/logout" },
 ];
 
 const AdminSidebar = () => {
+  const logout = useLogout();
+  const navigate = useNavigate();
+
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleLogout = () => {
+    logout();
+
+    navigate("/login");
+  };
 
   const linkClass = ({ isActive }) =>
     `block px-4 py-2 rounded-lg text-sm font-medium ${
@@ -43,6 +53,14 @@ const AdminSidebar = () => {
               {link.name}
             </NavLink>
           ))}
+          <button
+            className={
+              "block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+            }
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </nav>
       </div>
 
