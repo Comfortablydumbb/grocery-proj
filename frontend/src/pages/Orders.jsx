@@ -1,36 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Package, Calendar, DollarSign } from "lucide-react";
+import useAxiosPrivate from "../hooks/useAxiosPrivate"; // Ensure you have this hook
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  // Load orders from localStorage on component mount
+  const axiosPrivate = useAxiosPrivate();
+
   useEffect(() => {
-    const savedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-    // Sort orders by date, most recent first
-    setOrders(savedOrders.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    const fetchOrders = async () => {
+      try {
+        const res = await axiosPrivate.get("/v1/orders/myorders");
+        // Assuming response structure: { orders: [...] }
+        setOrders(
+          (res.data.orders || []).sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )
+        );
+      } catch (err) {
+        console.error("Failed to fetch orders:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
   }, []);
 
-  // Check for new order from checkout
-  useEffect(() => {
-    if (location.state && location.state.newOrder) {
-      // Optional: You could show a success message or highlight the new order
-      console.log("New order placed:", location.state.newOrder);
-    }
-  }, [location.state]);
-
-  // Format date
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-  };
 
-  // Get order status based on date
   const getOrderStatus = (dateString) => {
     const orderDate = new Date(dateString);
     const now = new Date();
@@ -40,19 +46,19 @@ const Orders = () => {
     return "Delivered";
   };
 
-  // Calculate total order price
-  const calculateOrderTotal = (items) => {
-    return items
-      .reduce((total, item) => total + item.price * item.quantity, 0)
+  const calculateOrderTotal = (items) =>
+    items
+      .reduce((total, item) => total + item.productId.price * item.quantity, 0)
       .toFixed(2);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-20 lg:pt-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
 
-        {orders.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-500">Loading orders...</p>
+        ) : orders.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
             <Package className="mx-auto h-16 w-16 text-gray-400 mb-4" />
             <p className="text-xl text-gray-600">
@@ -62,53 +68,53 @@ const Orders = () => {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+              <div
+                key={order._id}
+                className="bg-white rounded-lg shadow-md p-6"
+              >
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">
-                      Order #{order.id}
+                      Order #{order._id}
                     </h2>
                     <p className="text-sm text-gray-600">
-                      Placed on {formatDate(order.date)}
+                      Placed on {formatDate(order.createdAt)}
                     </p>
                   </div>
-
-                  <div className="flex items-center space-x-4">
-                    <span
-                      className={`
+                  <span
+                    className={`
                       px-3 py-1 rounded-full text-sm font-medium
                       ${
-                        getOrderStatus(order.date) === "Processing"
+                        getOrderStatus(order.createdAt) === "Processing"
                           ? "bg-yellow-100 text-yellow-800"
-                          : getOrderStatus(order.date) === "Shipped"
+                          : getOrderStatus(order.createdAt) === "Shipped"
                           ? "bg-blue-100 text-blue-800"
                           : "bg-green-100 text-green-800"
                       }
                     `}
-                    >
-                      {getOrderStatus(order.date)}
-                    </span>
-                  </div>
+                  >
+                    {getOrderStatus(order.createdAt)}
+                  </span>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-4 mb-4">
                   {/* Order Items */}
                   <div className="md:col-span-2">
                     <h3 className="text-lg font-semibold mb-2">Items</h3>
-                    {order.items.map((item) => (
+                    {order.orderItems.map((item, idx) => (
                       <div
-                        key={item.id}
+                        key={idx}
                         className="flex justify-between items-center mb-2 border-b pb-2 last:border-b-0"
                       >
                         <div className="flex items-center">
                           <img
-                            src={item.image}
-                            alt={item.name}
+                            src={item.productId.image || "/placeholder.jpg"}
+                            alt={item.productId.productName}
                             className="w-16 h-16 object-cover rounded-md mr-4"
                           />
                           <div>
                             <p className="font-medium text-gray-900">
-                              {item.name}
+                              {item.productId.productName}
                             </p>
                             <p className="text-sm text-gray-600">
                               Quantity: {item.quantity}
@@ -116,7 +122,8 @@ const Orders = () => {
                           </div>
                         </div>
                         <p className="font-semibold text-gray-900">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          Rs.{" "}
+                          {(item.productId.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -134,7 +141,7 @@ const Orders = () => {
                           <span>Order Date</span>
                         </div>
                         <span className="font-medium">
-                          {formatDate(order.date)}
+                          {formatDate(order.createdAt)}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -143,8 +150,12 @@ const Orders = () => {
                           <span>Total</span>
                         </div>
                         <span className="font-bold text-lg text-green-600">
-                          ${calculateOrderTotal(order.items)}
+                          Rs. {calculateOrderTotal(order.orderItems)}
                         </span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>Payment</span>
+                        <span>{order.paymentMethod}</span>
                       </div>
                     </div>
                   </div>

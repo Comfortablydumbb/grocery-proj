@@ -5,7 +5,7 @@ import useLogout from "../hooks/useLogout";
 
 const navLinks = [
   { name: "Dashboard", to: "/customer/dashboard" },
-  { name: "MyOrders", to: "/customer/orders" },
+  { name: "MyOrders", to: "/customer/myorders" },
   { name: "Settings", to: "/customer/settings" },
 ];
 

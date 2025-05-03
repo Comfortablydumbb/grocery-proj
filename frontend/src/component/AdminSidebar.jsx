@@ -8,6 +8,7 @@ const navLinks = [
   { name: "Categories", to: "/admin/categories" },
   { name: "Products", to: "/admin/products" },
   { name: "Users", to: "/admin/users" },
+  { name: "Orders", to: "/admin/allorders" },
 ];
 
 const AdminSidebar = ({ isOpen, toggleSidebar }) => {
