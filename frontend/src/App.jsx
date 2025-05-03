@@ -29,6 +29,7 @@ import CustomerDashboard from "./layouts/CustomerLayout.jsx";
 import CustomerDashboardHome from "./pages/customer/Dashboard.jsx";
 import MyOrders from "./pages/customer/MyOrders.jsx";
 import AdminAllOrders from "./pages/admin/AdminAllOrders.jsx";
+import CustomerSettings from "./pages/customer/Settings.jsx";
 
 const App = () => {
   return (
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/customer" element={<CustomerDashboard />}>
             <Route path="dashboard" element={<CustomerDashboardHome />} />
             <Route path="myorders" element={<MyOrders />} />
+            <Route path="settings" element={<CustomerSettings />} />
           </Route>
         </Route>
       </Route>

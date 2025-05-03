@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, DollarSign, Eye } from "lucide-react";
+import { Calendar } from "lucide-react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const MyOrders = () => {
@@ -11,6 +11,7 @@ const MyOrders = () => {
     const fetchOrders = async () => {
       try {
         const res = await axiosPrivate.get("/v1/orders/myorders");
+        console.log(res.data.orders);
         setOrders(
           (res.data.orders || []).sort(
             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -33,19 +34,27 @@ const MyOrders = () => {
       day: "numeric",
     });
 
-  const getOrderStatus = (dateString) => {
-    const orderDate = new Date(dateString);
-    const now = new Date();
-    const daysDiff = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24));
-    if (daysDiff < 1) return "Processing";
-    if (daysDiff < 2) return "Shipped";
-    return "Delivered";
-  };
-
   const calculateOrderTotal = (items) =>
     items
       .reduce((total, item) => total + item.productId.price * item.quantity, 0)
       .toFixed(2);
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "Processing":
+        return "bg-indigo-100 text-indigo-800";
+      case "Shipped":
+        return "bg-blue-100 text-blue-800";
+      case "Delivered":
+        return "bg-green-100 text-green-800";
+      case "Cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
     <div className="p-6">
@@ -105,18 +114,11 @@ const MyOrders = () => {
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <span
-                      className={`
-                        inline-block px-3 py-1 rounded-full text-xs font-medium
-                        ${
-                          getOrderStatus(order.createdAt) === "Processing"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : getOrderStatus(order.createdAt) === "Shipped"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
-                        }
-                      `}
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(
+                        order.status
+                      )}`}
                     >
-                      {getOrderStatus(order.createdAt)}
+                      {order.status}
                     </span>
                   </td>
                 </tr>

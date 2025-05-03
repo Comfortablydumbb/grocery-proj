@@ -1,27 +1,32 @@
-import React from "react";
-
-const stats = [
-  {
-    label: "Total Users",
-    value: 124,
-    color: "bg-green-100",
-    textColor: "text-green-700",
-  },
-  {
-    label: "Total Products",
-    value: 58,
-    color: "bg-blue-100",
-    textColor: "text-blue-700",
-  },
-  {
-    label: "Total Categories",
-    value: 8,
-    color: "bg-yellow-100",
-    textColor: "text-yellow-700",
-  },
-];
+import React, { useEffect, useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const DashboardHome = () => {
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const axiosPrivate = useAxiosPrivate();
+
+  const fetchStats = async () => {
+    try {
+      const res = await axiosPrivate.get("/v1/stats/adminstats");
+      console.log(res.data);
+      setStats(res.data.stats);
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center py-20">Loading dashboard stats...</p>;
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-semibold mb-6">Dashboard Overview</h1>
