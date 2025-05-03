@@ -26,6 +26,20 @@ export default function FeaturedProducts() {
     fetchProducts();
   }, []);
 
+  const handleAddToCart = async (productId) => {
+    try {
+      await axiosPrivate.post("/v1/cart/add", {
+        productId,
+        quantity: 1,
+      });
+      window.dispatchEvent(new Event("cartUpdated"));
+      toast.success("Items added to cart");
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      toast.error("Failed to add to cart");
+    }
+  };
+
   return (
     <section className="py-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 text-center">
@@ -90,8 +104,8 @@ export default function FeaturedProducts() {
                   price={product.price}
                   oldPrice={product.oldPrice}
                   discount={product.discount}
-                  rating={product.rating || 4}
-                  unit={product.unit || "kg"}
+                  unit={product.unit}
+                  onAddToCart={() => handleAddToCart(product._id)}
                 />
               </motion.div>
             ))

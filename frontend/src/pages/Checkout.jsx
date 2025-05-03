@@ -1,306 +1,172 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CreditCard, DollarSign } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 
-const Checkout = () => {
+const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    zipCode: '',
-    paymentMethod: 'cod'
-  });
-  const [errors, setErrors] = useState({});
+  const [paymentMethod, setPaymentMethod] = useState("QR");
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
-  // Load cart from localStorage
+  const fetchCart = async () => {
+    try {
+      const res = await axiosPrivate.get("/v1/cart/getcart");
+      setCartItems(res.data.cart.cartItems || []);
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+    }
+  };
+
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCartItems(savedCart);
+    fetchCart();
   }, []);
 
-  // Calculate total price
   const calculateTotal = () => {
-    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    return (subtotal + 5).toFixed(2); // Adding $5 delivery fee
+    return cartItems
+      .reduce((total, item) => total + item.productId.price * item.quantity, 0)
+      .toFixed(2);
   };
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
+  const handleOrderSubmit = async () => {
+    const selectedProducts = cartItems.map((item) => ({
+      productId: item.productId._id,
+      quantity: item.quantity,
     }));
-  };
 
-  // Validate form
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
-    }
-    
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Invalid phone number (10 digits required)';
-    }
-    
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.zipCode.trim()) newErrors.zipCode = 'Zip code is required';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    try {
+      const res = await axiosPrivate.post("/v1/cart/placeorder", {
+        selectedProducts,
+        address,
+        phoneNumber,
+        paymentMethod,
+      });
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-      // Create order object
-      const order = {
-        id: Date.now(), // Unique order ID
-        items: cartItems,
-        total: calculateTotal(),
-        ...formData,
-        date: new Date().toISOString()
-      };
-      
-      // Save order to localStorage
-      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      orders.push(order);
-      localStorage.setItem('orders', JSON.stringify(orders));
-      
-      // Clear cart
-      localStorage.removeItem('cart');
-      
-      // Redirect to order confirmation
-      navigate('/orders', { state: { newOrder: order } });
+      toast.success(res.data.message);
+      navigate("/orders");
+    } catch (err) {
+      console.error("Order failed:", err.response?.data || err.message);
+      toast.error("Order failed. Please try again.");
     }
   };
 
   return (
-    <div className="pt-16 min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Checkout Form */}
-          <form onSubmit={handleSubmit} className="md:col-span-2 bg-white rounded-lg shadow-md p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* First Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.firstName ? 'border-red-500' : ''}`}
-                />
-                {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
-                )}
-              </div>
-              
-              {/* Last Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.lastName ? 'border-red-500' : ''}`}
-                />
-                {errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
-                )}
-              </div>
-              
-              {/* Email */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.email ? 'border-red-500' : ''}`}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
-              </div>
-              
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="(xxx) xxx-xxxx"
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.phone ? 'border-red-500' : ''}`}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                )}
-              </div>
-              
-              {/* Address */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street Address
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.address ? 'border-red-500' : ''}`}
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-xs mt-1">{errors.address}</p>
-                )}
-              </div>
-              
-              {/* City */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.city ? 'border-red-500' : ''}`}
-                />
-                {errors.city && (
-                  <p className="text-red-500 text-xs mt-1">{errors.city}</p>
-                )}
-              </div>
-              
-              {/* Zip Code */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Zip Code
-                </label>
-                <input
-                  type="text"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.zipCode ? 'border-red-500' : ''}`}
-                />
-                {errors.zipCode && (
-                  <p className="text-red-500 text-xs mt-1">{errors.zipCode}</p>
-                )}
-              </div>
-              
-              {/* Payment Method */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Method
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="flex items-center space-x-2 bg-gray-100 p-4 rounded-lg">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="cod"
-                      checked={formData.paymentMethod === 'cod'}
-                      onChange={handleChange}
-                      className="text-green-600 focus:ring-green-500"
-                    />
-                    <span className="flex items-center">
-                      <DollarSign className="mr-2" />
-                      Cash on Delivery
-                    </span>
-                  </label>
-                  <label className="flex items-center space-x-2 bg-gray-100 p-4 rounded-lg">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="paypal"
-                      checked={formData.paymentMethod === 'paypal'}
-                      onChange={handleChange}
-                      className="text-green-600 focus:ring-green-500"
-                    />
-                    <span className="flex items-center">
-                      <CreditCard className="mr-2" />
-                      PayPal
-                    </span>
-                  </label>
+    <div className="py-20 lg:pt-40 pb-12 px-4 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-8 text-center">Checkout</h1>
+
+      <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
+        <div className="grid md:grid-cols-2 gap-10">
+          {/* Left Column - Form & Summary */}
+          <div className="space-y-6">
+            {/* Cart Summary */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Order Items</h2>
+              {cartItems.map((item) => (
+                <div
+                  key={item._id}
+                  className="flex justify-between py-2 border-b"
+                >
+                  <div>
+                    <p className="font-medium">{item.productId.productName}</p>
+                    <p className="text-sm text-gray-500">
+                      Qty: {item.quantity} × Rs.{" "}
+                      {item.productId.price.toFixed(2)}
+                    </p>
+                  </div>
+                  <p className="font-bold text-green-600">
+                    Rs. {(item.quantity * item.productId.price).toFixed(2)}
+                  </p>
                 </div>
-              </div>
+              ))}
             </div>
-            
+
+            {/* Total */}
+            <div className="flex justify-between text-lg font-semibold">
+              <span>Total</span>
+              <span>Rs. {calculateTotal()}</span>
+            </div>
+
+            {/* Payment Method */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">
+                Payment Method
+              </label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full border rounded-md p-2"
+              >
+                <option value="QR">QR Payment</option>
+                <option value="Cash">Cash on Delivery</option>
+              </select>
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">
+                Address
+              </label>
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full border rounded-md p-2"
+                rows={3}
+                placeholder="Your delivery address"
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full border rounded-md p-2"
+                placeholder="e.g. 9800000000"
+              />
+            </div>
+
+            {/* Place Order */}
             <button
-              type="submit"
-              className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700"
+              onClick={handleOrderSubmit}
+              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700"
             >
               Place Order
             </button>
-          </form>
-          
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-            
-            {cartItems.map(item => (
-              <div key={item.id} className="flex justify-between mb-2">
-                <span>{item.name} x {item.quantity}</span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
-              </div>
-            ))}
-            
-            <hr className="my-4" />
-            
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>${(calculateTotal() - 5).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Delivery</span>
-                <span>$5.00</span>
-              </div>
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>${calculateTotal()}</span>
-              </div>
-            </div>
           </div>
+
+          {/* Right Column - QR Section */}
+          {paymentMethod === "QR" && (
+            <div className="space-y-4 border p-4 rounded-lg bg-gray-50">
+              <h3 className="text-xl font-semibold text-center">QR Payment</h3>
+              <div className="flex justify-center">
+                {/* Replace with your actual QR image path */}
+                <img
+                  src="/images/qr-placeholder.png"
+                  alt="QR Code"
+                  className="w-64 h-64 object-contain border"
+                />
+              </div>
+              <p className="text-sm text-gray-700 text-center">
+                <strong>Note:</strong> While paying, please include your email
+                in the remarks.
+              </p>
+              <p className="text-sm text-gray-700 text-center">
+                You can also WhatsApp us your payment screenshot for faster
+                confirmation.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Checkout;
+export default CheckoutPage;

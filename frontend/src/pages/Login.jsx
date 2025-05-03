@@ -44,8 +44,9 @@ const Login = () => {
       const name = response.data.user.name;
       const role = response.data.user.role;
       const accessToken = response.data.token;
+      const userId = response.data.userId;
 
-      const userData = { name, email, role, accessToken };
+      const userData = { userId, name, email, role, accessToken };
       console.log(userData);
       localStorage.setItem("user", JSON.stringify(userData));
 

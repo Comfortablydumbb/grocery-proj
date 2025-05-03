@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ShoppingCart, Menu, X, User } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import AccountLink from "../component/AccountLink";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,14 +14,28 @@ const Navbar = () => {
   const { auth } = useAuth();
   const name = auth.name;
 
+  const axiosPrivate = useAxiosPrivate();
+
   useEffect(() => {
-    const getCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      setCartCount(cart.length);
+    const fetchCartCount = async () => {
+      try {
+        const res = await axiosPrivate.get("/v1/cart/getcart");
+        console.log(res.data);
+        const items = res.data.cart.cartItems || [];
+        const totalCount = items.reduce((sum, item) => sum + item.quantity, 0); // Count total quantity
+        setCartCount(totalCount);
+        console.log(totalCount);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+      }
     };
-    getCartCount();
-    window.addEventListener("storage", getCartCount);
-    return () => window.removeEventListener("storage", getCartCount);
+
+    fetchCartCount();
+
+    // Listen to custom cart update event
+    window.addEventListener("cartUpdated", fetchCartCount);
+
+    return () => window.removeEventListener("cartUpdated", fetchCartCount);
   }, []);
 
   useEffect(() => {

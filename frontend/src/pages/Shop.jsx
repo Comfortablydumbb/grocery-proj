@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ProductCard from "../component/ProductCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 
 export default function Shop() {
   const axiosPrivate = useAxiosPrivate();
@@ -54,6 +55,20 @@ export default function Shop() {
         updatedCategories.includes(product.category?.categoryName)
       );
       setFilteredProducts(filtered);
+    }
+  };
+
+  const handleAddToCart = async (productId) => {
+    try {
+      await axiosPrivate.post("/v1/cart/add", {
+        productId,
+        quantity: 1,
+      });
+      toast.success("Items added to cart");
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      toast.error("Failed to add to cart");
     }
   };
 
@@ -139,11 +154,6 @@ export default function Shop() {
             ) : (
               filteredProducts.map((product, index) => (
                 <motion.div key={index} whileHover={{ scale: 1.03 }}>
-                  {product.discount > 0 && (
-                    <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
-                      {product.discount}% OFF
-                    </span>
-                  )}
                   <ProductCard
                     image={`http://localhost:3001/public/${product.images?.[0]}`}
                     name={product.productName}
@@ -151,8 +161,8 @@ export default function Shop() {
                     price={product.price}
                     oldPrice={product.oldPrice}
                     discount={product.discount}
-                    rating={product.rating || 4}
-                    unit={product.unit || "kg"}
+                    unit={product.unit}
+                    onAddToCart={() => handleAddToCart(product._id)}
                   />
                 </motion.div>
               ))

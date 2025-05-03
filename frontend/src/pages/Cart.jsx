@@ -1,59 +1,83 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Plus, Minus } from "lucide-react";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useAuth from "../hooks/useAuth";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+  const auth = useAuth();
 
-  // Load cart from localStorage on component mount
+  const axiosPrivate = useAxiosPrivate();
+
+  const fetchCart = async () => {
+    try {
+      const res = await axiosPrivate.get("/v1/cart/getcart");
+      console.log(res.data.cart.cartItems);
+      setCartItems(res.data.cart.cartItems || []);
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+    }
+  };
+
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    setCartItems(savedCart);
+    fetchCart();
   }, []);
 
-  // Update localStorage whenever cart changes
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
-    window.dispatchEvent(new Event("storage"));
-  }, [cartItems]);
-
-  // Calculate total price
   const calculateTotal = () => {
     return cartItems
-      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .reduce((total, item) => total + item.productId.price * item.quantity, 0)
       .toFixed(2);
   };
 
-  // Increase quantity of an item
-  const increaseQuantity = (itemId) => {
-    const updatedCart = cartItems.map((item) =>
-      item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
-    );
-    setCartItems(updatedCart);
+  const increaseQuantity = async (productId, currentQty) => {
+    try {
+      await axiosPrivate.put("/v1/cart/updatecart", {
+        productId,
+        quantity: currentQty + 1,
+      });
+      fetchCart();
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (err) {
+      console.error("Increase failed:", err);
+    }
   };
 
-  // Decrease quantity of an item
-  const decreaseQuantity = (itemId) => {
-    const updatedCart = cartItems
-      .map((item) =>
-        item.id === itemId && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-      .filter((item) => item.quantity > 0);
-    setCartItems(updatedCart);
+  const decreaseQuantity = async (productId, currentQty) => {
+    if (currentQty <= 1) return removeItem(productId);
+    try {
+      await axiosPrivate.put("/v1/cart/updatecart", {
+        productId,
+        quantity: currentQty - 1,
+      });
+      fetchCart();
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (err) {
+      console.error("Decrease failed:", err);
+    }
   };
 
-  // Remove item from cart
-  const removeItem = (itemId) => {
-    const updatedCart = cartItems.filter((item) => item.id !== itemId);
-    setCartItems(updatedCart);
+  const removeItem = async (productId) => {
+    try {
+      await axiosPrivate.delete(`/v1/cart/remove/${productId}`);
+      fetchCart();
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (err) {
+      console.error("Remove failed:", err);
+    }
   };
 
-  // Clear entire cart
-  const clearCart = () => {
-    setCartItems([]);
+  const clearCart = async () => {
+    try {
+      for (let item of cartItems) {
+        await axiosPrivate.delete(`/v1/cart/remove/${item.productId._id}`);
+      }
+      fetchCart();
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (err) {
+      console.error("Clear cart failed:", err);
+    }
   };
 
   return (
@@ -73,52 +97,49 @@ const Cart = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Cart Items */}
             <div className="md:col-span-2 space-y-4">
               {cartItems.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="bg-white rounded-lg shadow-md p-4 flex items-center"
                 >
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={`http://localhost:3001/public/${item.productId.images[0]}`}
+                    alt={item.productId.productName}
                     className="w-24 h-24 object-cover rounded-md mr-4"
                   />
                   <div className="flex-grow">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {item.name}
+                      {item.productId.productName}
                     </h3>
                     <p className="text-gray-600">
-                      ${item.price.toFixed(2)} / {item.unit}
+                      ${item.productId.price.toFixed(2)}
                     </p>
                   </div>
-
-                  {/* Quantity Controls */}
                   <div className="flex items-center space-x-2 mr-4">
                     <button
-                      onClick={() => decreaseQuantity(item.id)}
+                      onClick={() =>
+                        decreaseQuantity(item.productId._id, item.quantity)
+                      }
                       className="bg-gray-200 p-1 rounded-full"
                     >
                       <Minus size={16} />
                     </button>
                     <span className="font-medium">{item.quantity}</span>
                     <button
-                      onClick={() => increaseQuantity(item.id)}
+                      onClick={() =>
+                        increaseQuantity(item.productId._id, item.quantity)
+                      }
                       className="bg-gray-200 p-1 rounded-full"
                     >
                       <Plus size={16} />
                     </button>
                   </div>
-
-                  {/* Total Price */}
                   <div className="font-bold text-green-600 mr-4">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${(item.quantity * item.productId.price).toFixed(2)}
                   </div>
-
-                  {/* Remove Item */}
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.productId._id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 size={20} />
@@ -130,20 +151,21 @@ const Cart = () => {
             {/* Order Summary */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-700">Subtotal</span>
-                  <span className="font-bold">${calculateTotal()}</span>
+                  <span className="font-bold">Rs. {calculateTotal()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-700">Delivery</span>
-                  <span className="font-bold">$5.00</span>
+                  <span className="font-bold">Rs. 10</span>
                 </div>
                 <hr className="my-2" />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${(parseFloat(calculateTotal()) + 5).toFixed(2)}</span>
+                  <span>
+                    Rs. {(parseFloat(calculateTotal()) + 5).toFixed(2)}
+                  </span>
                 </div>
               </div>
 
