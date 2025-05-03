@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import ProductCard from "../component/ProductCard";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
 
 export default function Shop() {
   const axiosPrivate = useAxiosPrivate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialCategory = queryParams.get("category");
+
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all products with populated category
+  // Fetch products
   const fetchProducts = async () => {
     try {
       const res = await axiosPrivate.get("/v1/products");
@@ -25,7 +30,7 @@ export default function Shop() {
     }
   };
 
-  // Fetch all available categories
+  // Fetch categories
   const fetchCategories = async () => {
     try {
       const res = await axiosPrivate.get("/v1/categories");
@@ -35,12 +40,28 @@ export default function Shop() {
     }
   };
 
+  // Initial fetch
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
+    const init = async () => {
+      await fetchProducts();
+      await fetchCategories();
+    };
+    init();
   }, []);
 
-  // Handle filter change
+  // Apply initial category from URL
+  useEffect(() => {
+    if (initialCategory && products.length > 0) {
+      setSelectedCategories([initialCategory]);
+
+      const filtered = products.filter(
+        (product) => product.category?.categoryName === initialCategory
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [initialCategory, products]);
+
+  // Handle category checkbox changes
   const handleCategoryChange = (categoryName) => {
     const updatedCategories = selectedCategories.includes(categoryName)
       ? selectedCategories.filter((c) => c !== categoryName)
@@ -58,13 +79,14 @@ export default function Shop() {
     }
   };
 
+  // Add to cart
   const handleAddToCart = async (productId) => {
     try {
       await axiosPrivate.post("/v1/cart/add", {
         productId,
         quantity: 1,
       });
-      toast.success("Items added to cart");
+      toast.success("Item added to cart");
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (err) {
       console.error("Error adding to cart:", err);

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import bannerimage from "../assets/grocery.jpg";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 const banners = [
   {
@@ -76,28 +77,32 @@ export default function FeaturedCategories() {
           </p>
         ) : (
           categories.map((cat) => (
-            <motion.div
+            <Link
               key={cat._id}
-              variants={{
-                hidden: { opacity: 0, scale: 0.9 },
-                visible: { opacity: 1, scale: 1 },
-              }}
-              whileHover={{ y: -5, scale: 1.03 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`rounded-xl border bg-green-50 p-4 text-center cursor-pointer hover:shadow-xl transition`}
+              to={`/shop?category=${encodeURIComponent(cat.categoryName)}`}
             >
-              <img
-                src={`http://localhost:3001/public/${cat.images[0]}`}
-                alt={cat.categoryName}
-                className="h-16 w-16 mx-auto object-contain mb-3"
-              />
-              <h4 className="font-semibold text-gray-800">
-                {cat.categoryName}
-              </h4>
-              <p className="text-gray-500 text-sm">
-                {cat.productCount || 0} items
-              </p>
-            </motion.div>
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, scale: 0.9 },
+                  visible: { opacity: 1, scale: 1 },
+                }}
+                whileHover={{ y: -5, scale: 1.03 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className={`rounded-xl border bg-green-50 p-4 text-center cursor-pointer hover:shadow-xl transition`}
+              >
+                <img
+                  src={`http://localhost:3001/public/${cat.images[0]}`}
+                  alt={cat.categoryName}
+                  className="h-16 w-16 mx-auto object-contain mb-3"
+                />
+                <h4 className="font-semibold text-gray-800">
+                  {cat.categoryName}
+                </h4>
+                <p className="text-gray-500 text-sm">
+                  {cat.productCount || 0} items
+                </p>
+              </motion.div>
+            </Link>
           ))
         )}
       </motion.div>
@@ -123,9 +128,12 @@ export default function FeaturedCategories() {
               <h3 className="text-xl font-bold text-gray-800 mb-3">
                 {banner.title}
               </h3>
-              <button className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-full transition">
+              <Link
+                to={"/shop"}
+                className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-full transition"
+              >
                 Shop Now →
-              </button>
+              </Link>
             </div>
 
             {/* Image */}
