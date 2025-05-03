@@ -30,6 +30,7 @@ import CustomerDashboardHome from "./pages/customer/Dashboard.jsx";
 import MyOrders from "./pages/customer/MyOrders.jsx";
 import AdminAllOrders from "./pages/admin/AdminAllOrders.jsx";
 import CustomerSettings from "./pages/customer/Settings.jsx";
+import AdminSettings from "./pages/admin/Settings.jsx";
 
 const App = () => {
   return (
@@ -75,6 +76,7 @@ const App = () => {
             <Route path="products/update/:id" element={<UpdateProduct />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="allorders" element={<AdminAllOrders />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Route>
         <Route element={<RequireAuth allowedRoles={["Customer"]} />}>

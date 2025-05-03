@@ -9,6 +9,7 @@ const navLinks = [
   { name: "Products", to: "/admin/products" },
   { name: "Users", to: "/admin/users" },
   { name: "Orders", to: "/admin/allorders" },
+  { name: "Settings", to: "/admin/settings" },
 ];
 
 const AdminSidebar = ({ isOpen, toggleSidebar }) => {
