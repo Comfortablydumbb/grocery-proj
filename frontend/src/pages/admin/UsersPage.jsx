@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
   const axiosPrivate = useAxiosPrivate();
 
   const fetchUsers = async () => {
@@ -23,6 +24,21 @@ const UsersPage = () => {
     }
   };
 
+  const handleMakeAdmin = async (email, id) => {
+    setProcessingId(id);
+    try {
+      await axiosPrivate.put("/v1/make-admin", { email });
+      toast.success("User promoted to Admin successfully");
+      // Remove user from customers list after role change
+      setUsers((prev) => prev.filter((user) => user._id !== id));
+    } catch (err) {
+      const msg = err.response?.data?.msg || "Failed to promote user to Admin";
+      toast.error(msg);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -38,6 +54,7 @@ const UsersPage = () => {
               <th className="text-left px-4 py-2 border-b">Name</th>
               <th className="text-left px-4 py-2 border-b">Email</th>
               <th className="text-left px-4 py-2 border-b">Role</th>
+              <th className="text-left px-4 py-2 border-b">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -47,11 +64,22 @@ const UsersPage = () => {
                   <td className="px-4 py-2 border-b">{user.name}</td>
                   <td className="px-4 py-2 border-b">{user.email}</td>
                   <td className="px-4 py-2 border-b capitalize">{user.role}</td>
+                  <td className="px-4 py-2 border-b">
+                    <button
+                      onClick={() => handleMakeAdmin(user.email, user._id)}
+                      disabled={processingId === user._id}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded"
+                    >
+                      {processingId === user._id
+                        ? "Processing..."
+                        : "Make Admin"}
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="3" className="text-center py-4 text-gray-500">
+                <td colSpan="4" className="text-center py-4 text-gray-500">
                   {loading ? "Loading users..." : "No customers found."}
                 </td>
               </tr>

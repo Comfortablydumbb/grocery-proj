@@ -31,6 +31,8 @@ import MyOrders from "./pages/customer/MyOrders.jsx";
 import AdminAllOrders from "./pages/admin/AdminAllOrders.jsx";
 import CustomerSettings from "./pages/customer/Settings.jsx";
 import AdminSettings from "./pages/admin/Settings.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 const App = () => {
   return (
@@ -64,6 +66,8 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/resetpassword/:email" element={<ResetPassword />} />
         </Route>
         <Route element={<RequireAuth allowedRoles={["Admin"]} />}>
           <Route path="/admin" element={<AdminDashboard />}>

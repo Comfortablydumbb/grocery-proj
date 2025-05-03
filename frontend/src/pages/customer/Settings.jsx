@@ -32,7 +32,6 @@ const CustomerSettings = () => {
   const submitProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setProfileMsg("");
     try {
       await axiosPrivate.put(`v1/user/${userEmail}`, profileData);
       toast.success("Profile Updated Successfully");
